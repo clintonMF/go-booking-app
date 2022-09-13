@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 )
 
 var conferenceName string = "Go conference"
@@ -10,7 +9,14 @@ var conferenceName string = "Go conference"
 const conferenceTickets uint = 50
 
 var remainingTickets uint = 50
-var bookings = make([]map[string]string, 0)
+var bookings = make([]userData, 0)
+
+type userData struct {
+	firstName       string
+	lastName        string
+	email           string
+	numberOfTickets uint
+}
 
 func main() {
 
@@ -31,7 +37,7 @@ func main() {
 		fmt.Println("Enter your email address")
 		fmt.Scan(&email)
 
-		isValidEmail, isValidName, isValidTicketNumber := validateUserInput(
+		isValidName, isValidEmail, isValidTicketNumber := validateUserInput(
 			firstName, lastName, email, numberOfTickets)
 
 		if isValidEmail && isValidName && isValidTicketNumber {
@@ -71,7 +77,7 @@ func greeting() {
 func getFirstNames() []string {
 	firstNames := []string{}
 	for _, booking := range bookings {
-		firstNames = append(firstNames, booking["firstName"])
+		firstNames = append(firstNames, booking.firstName)
 	}
 
 	return firstNames
@@ -79,18 +85,19 @@ func getFirstNames() []string {
 
 func bookTickets(firstName string, lastName string, email string, numberOfTickets uint) {
 	remainingTickets = conferenceTickets - numberOfTickets
-	var userData = make(map[string]string)
-
-	userData["firstName"] = firstName
-	userData["lastName"] = lastName
-	userData["email"] = email
-	userData["numberOfTickets"] = strconv.FormatUint(uint64(numberOfTickets), 10)
+	var userData = userData{
+		firstName:       firstName,
+		lastName:        lastName,
+		email:           email,
+		numberOfTickets: numberOfTickets,
+	}
 
 	bookings = append(bookings, userData)
+
+	fmt.Printf("list of bookings are => %v\n", bookings)
 
 	fmt.Printf("Thank you %v %v for booking %v tickets, You will receive a "+
 		"confirmation mail at %v\n", firstName, lastName, numberOfTickets,
 		email)
-	fmt.Printf("%v tickets remaining for the"+
-		" %v", remainingTickets, conferenceName)
+	fmt.Printf("%v tickets remaining for the %v\n", remainingTickets, conferenceName)
 }
