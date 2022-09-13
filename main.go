@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"strconv"
 )
 
 var conferenceName string = "Go conference"
@@ -10,7 +10,7 @@ var conferenceName string = "Go conference"
 const conferenceTickets uint = 50
 
 var remainingTickets uint = 50
-var bookings = []string{}
+var bookings = make([]map[string]string, 0)
 
 func main() {
 
@@ -71,25 +71,22 @@ func greeting() {
 func getFirstNames() []string {
 	firstNames := []string{}
 	for _, booking := range bookings {
-		var names = strings.Fields(booking)
-		firstNames = append(firstNames, names[0])
+		firstNames = append(firstNames, booking["firstName"])
 	}
 
 	return firstNames
 }
 
-func validateUserInput(firstName string, lastName string, email string, numOfTickets uint) (bool, bool, bool) {
-	isValidName := len(firstName) >= 2 && len(lastName) >= 2
-	isValidEmail := strings.Contains(email, "@")
-	isValidTicketNumber := numOfTickets > 0 && numOfTickets <= remainingTickets
-
-	return isValidName, isValidEmail, isValidTicketNumber
-}
-
 func bookTickets(firstName string, lastName string, email string, numberOfTickets uint) {
 	remainingTickets = conferenceTickets - numberOfTickets
+	var userData = make(map[string]string)
 
-	bookings = append(bookings, firstName+" "+lastName)
+	userData["firstName"] = firstName
+	userData["lastName"] = lastName
+	userData["email"] = email
+	userData["numberOfTickets"] = strconv.FormatUint(uint64(numberOfTickets), 10)
+
+	bookings = append(bookings, userData)
 
 	fmt.Printf("Thank you %v %v for booking %v tickets, You will receive a "+
 		"confirmation mail at %v\n", firstName, lastName, numberOfTickets,
