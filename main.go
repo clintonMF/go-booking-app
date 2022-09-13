@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -19,54 +20,56 @@ type userData struct {
 	numberOfTickets uint
 }
 
+var wg = sync.WaitGroup{}
+
 func main() {
 
 	greeting()
 
-	for {
-		var firstName string
-		var lastName string
-		var numberOfTickets uint
-		var email string
+	var firstName string
+	var lastName string
+	var numberOfTickets uint
+	var email string
 
-		fmt.Println("Enter your first name")
-		fmt.Scan(&firstName)
-		fmt.Println("Enter your last name")
-		fmt.Scan(&lastName)
-		fmt.Println("Enter number of tickets")
-		fmt.Scan(&numberOfTickets)
-		fmt.Println("Enter your email address")
-		fmt.Scan(&email)
+	fmt.Println("Enter your first name")
+	fmt.Scan(&firstName)
+	fmt.Println("Enter your last name")
+	fmt.Scan(&lastName)
+	fmt.Println("Enter number of tickets")
+	fmt.Scan(&numberOfTickets)
+	fmt.Println("Enter your email address")
+	fmt.Scan(&email)
 
-		isValidName, isValidEmail, isValidTicketNumber := validateUserInput(
-			firstName, lastName, email, numberOfTickets)
+	isValidName, isValidEmail, isValidTicketNumber := validateUserInput(
+		firstName, lastName, email, numberOfTickets)
 
-		if isValidEmail && isValidName && isValidTicketNumber {
-			//this logic is used to prevent the user from booking
-			// more tickets than there are remaining
+	if isValidEmail && isValidName && isValidTicketNumber {
+		//this logic is used to prevent the user from booking
+		// more tickets than there are remaining
 
-			bookTickets(firstName, lastName, email, numberOfTickets)
-			go sendTicket(numberOfTickets, email, firstName, lastName)
+		bookTickets(firstName, lastName, email, numberOfTickets)
+		wg.Add(1) // this function sets the number of goroutines to wait for
+		go sendTicket(numberOfTickets, email, firstName, lastName)
 
-			firstNames := getFirstNames()
-			fmt.Printf("the first names of bookings are %v \n", firstNames)
+		firstNames := getFirstNames()
+		fmt.Printf("the first names of bookings are %v \n", firstNames)
 
-			if remainingTickets == 0 {
-				fmt.Println("All our tickets have been sold out, come back next year")
-				break
-			}
-		} else {
-			if !isValidName {
-				fmt.Println("Your first name or last name is too short")
-			}
-			if !isValidEmail {
-				fmt.Println("You entered a wrong email")
-			}
-			if !isValidTicketNumber {
-				fmt.Println("Number of tickets you entered is invalid")
-			}
+		if remainingTickets == 0 {
+			fmt.Println("All our tickets have been sold out, come back next year")
+			// break
+		}
+	} else {
+		if !isValidName {
+			fmt.Println("Your first name or last name is too short")
+		}
+		if !isValidEmail {
+			fmt.Println("You entered a wrong email")
+		}
+		if !isValidTicketNumber {
+			fmt.Println("Number of tickets you entered is invalid")
 		}
 	}
+	wg.Wait() // this function blocks the main thread until the WaitGroup counter is 0
 }
 
 func greeting() {
@@ -111,5 +114,5 @@ func sendTicket(numberOfTickets uint, email string, firstName string, lastName s
 	fmt.Println("######################")
 	fmt.Printf("Sending tickets:\n%v \nto email address :%v\n", ticket, email)
 	fmt.Println("######################")
-
+	wg.Done() //this function decrements the wait group counter by 1
 }
