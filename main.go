@@ -46,9 +46,9 @@ func main() {
 			// more tickets than there are remaining
 
 			bookTickets(firstName, lastName, email, numberOfTickets)
+			go sendTicket(numberOfTickets, email, firstName, lastName)
 
 			firstNames := getFirstNames()
-			sendTicket(numberOfTickets, email, firstName, lastName)
 			fmt.Printf("the first names of bookings are %v \n", firstNames)
 
 			if remainingTickets == 0 {
@@ -105,11 +105,11 @@ func bookTickets(firstName string, lastName string, email string, numberOfTicket
 }
 
 func sendTicket(numberOfTickets uint, email string, firstName string, lastName string) {
-	time.Sleep(10 * time.Second)
+	time.Sleep(20 * time.Second)
 	var ticket = fmt.Sprintf("%v tickets for %v %v", numberOfTickets, firstName, lastName)
 
 	fmt.Println("######################")
-	fmt.Printf("Sending tickets:\n %v to %v\n", ticket, email)
+	fmt.Printf("Sending tickets:\n%v \nto email address :%v\n", ticket, email)
 	fmt.Println("######################")
 
 }
